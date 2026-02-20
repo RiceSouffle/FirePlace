@@ -1,0 +1,47 @@
+name: fireplace
+description: "FirePlace - Curated content to help you break Instagram addiction."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.6.1
+
+  # Local storage
+  shared_preferences: ^2.3.0
+  hive_ce: ^2.10.0
+  hive_ce_flutter: ^2.3.0
+
+  # Networking
+  http: ^1.2.0
+  cached_network_image: ^3.4.1
+
+  # Environment variables
+  flutter_dotenv: ^5.2.1
+
+  # UI
+  flutter_staggered_grid_view: ^0.7.0
+  fl_chart: ^0.70.0
+  shimmer: ^3.0.0
+  google_fonts: ^6.2.1
+
+  # Utilities
+  intl: ^0.19.0
+  url_launcher: ^6.3.0
+  timeago: ^3.7.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
