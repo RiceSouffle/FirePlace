@@ -31,17 +31,17 @@ The goal is to offer the visual browsing experience people enjoy about Instagram
 
 | | | | |
 |---|---|---|---|
-| Cats | Dogs | Animals | Cars |
-| Motorcycles | Photography | Art | Digital Art |
-| Nature | Ocean | Weather | Plants |
-| Food | Coffee | Travel | Fitness |
-| Fashion | Architecture | Interior Design | Space |
-| Technology | Science | Gaming | Anime |
-| Movies & TV | Music | Memes | Sports |
-| Woodworking | DIY | Aesthetics | Maps |
-| History | | | |
+| 🐱 Cats | 🐶 Dogs | 🐾 Animals | 🚗 Cars |
+| 🏍 Motorcycles | 📷 Photography | 🎨 Art | 🖼 Digital Art |
+| 🌿 Nature | 🌊 Ocean | ⛈ Weather | 🌱 Plants |
+| 🍕 Food | ☕ Coffee | ✈ Travel | 💪 Fitness |
+| 👗 Fashion | 🏛 Architecture | 🛋 Interior Design | 🚀 Space |
+| 💻 Technology | 🔬 Science | 🎮 Gaming | 🌸 Anime |
+| 🎬 Movies & TV | 🎵 Music | 😂 Memes | ⚽ Sports |
+| 🪓 Woodworking | 🛠 DIY | ✨ Aesthetics | 🗺 Maps |
+| 🏰 History | | | |
 
-Each category is mapped to 4-8 popular subreddits for content variety.
+Each category is mapped to 4–8 popular subreddits for content variety.
 
 ## Tech Stack
 
