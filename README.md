@@ -146,3 +146,10 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 ## License
 
 This project is open source under the [MIT License](LICENSE).
+
+You're free to use, modify, and distribute this project — just include the original copyright notice and link back to this repo:
+
+```
+Copyright (c) 2026 46312439
+https://github.com/46312439/FirePlace
+```
