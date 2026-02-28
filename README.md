@@ -110,7 +110,7 @@ lib/
 
 ```bash
 # Clone the repo
-git clone https://github.com/46312439/FirePlace.git
+git clone https://github.com/RiceSouffle/FirePlace.git
 cd FirePlace
 
 # Create the .env file (Reddit needs no API key)
@@ -119,7 +119,7 @@ echo "REDDIT_USER_AGENT=FirePlace/1.0" > .env
 # Get dependencies
 flutter pub get
 
-# Run on a connected device or emulator
+# Run on a connected device or emulator (Android studio)
 flutter run
 ```
 
@@ -150,6 +150,6 @@ This project is open source under the [MIT License](LICENSE).
 You're free to use, modify, and distribute this project — just include the original copyright notice and link back to this repo:
 
 ```
-Copyright (c) 2026 46312439
-https://github.com/46312439/FirePlace
+Copyright (c) 2026 RiceSouffle
+https://github.com/RiceSouffle/FirePlace
 ```
