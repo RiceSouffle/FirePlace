@@ -7,16 +7,16 @@ final exploreCategoryProvider = StateProvider<String?>((ref) => null);
 
 final exploreProvider =
     StateNotifierProvider<ExploreNotifier, AsyncValue<List<FeedItem>>>((ref) {
-  final aggregator = ref.read(contentAggregatorProvider);
+  final gallery = ref.read(galleryServiceProvider);
   final selectedCategory = ref.watch(exploreCategoryProvider);
-  return ExploreNotifier(aggregator, selectedCategory);
+  return ExploreNotifier(gallery, selectedCategory);
 });
 
 class ExploreNotifier extends StateNotifier<AsyncValue<List<FeedItem>>> {
-  final dynamic _aggregator;
+  final dynamic _gallery;
   final String? _selectedCategory;
 
-  ExploreNotifier(this._aggregator, this._selectedCategory)
+  ExploreNotifier(this._gallery, this._selectedCategory)
       : super(const AsyncValue.loading()) {
     _load();
   }
@@ -28,11 +28,7 @@ class ExploreNotifier extends StateNotifier<AsyncValue<List<FeedItem>>> {
               .where((i) => i.id == _selectedCategory)
               .toList()
           : AppConstants.allInterests;
-
-      final items = await _aggregator.fetchFeed(
-        interests: interests,
-        perPage: 5,
-      );
+      final items = await _gallery.fetchFeed(interests: interests, perPage: 18);
       state = AsyncValue.data(items);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

@@ -1,18 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
-import '../../design/ember_theme.dart';
-import '../../design/ember_tokens.dart';
+import '../../design/theme.dart';
+import '../../design/tokens.dart';
 import '../../models/feed_item.dart';
 import '../../providers/saved_posts_provider.dart';
-import '../../widgets/ember_burst.dart';
-import '../../widgets/museum_label.dart';
 
-/// The print steps off the wall: a hero-lifted, pinch-zoomable full-bleed image
-/// with the title *promoted* from utilitarian Inter into a Fraunces pull-quote —
-/// a small luxury that rewards tapping in.
+/// A single work, full width, with a museum-style wall label beneath it.
 class PostDetailScreen extends ConsumerStatefulWidget {
   const PostDetailScreen({
     super.key,
@@ -40,199 +36,124 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final e = context.ember;
+    final g = context.c;
     final item = widget.item;
-    final isSaved =
-        ref.watch(savedPostsProvider).any((p) => p.id == item.id);
-    final title = item.title ?? '';
+    final isSaved = ref.watch(savedPostsProvider).any((p) => p.id == item.id);
+    final isPhoto = item.sourceName == 'Lorem Picsum';
+
+    final metaLine = [
+      if (item.dateText != null && item.dateText!.isNotEmpty) item.dateText!,
+      if (item.medium != null && item.medium!.isNotEmpty) item.medium!,
+    ].join('  ·  ');
 
     return Scaffold(
-      backgroundColor: e.inkFrame,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          DoubleTapEmber(
-            liked: _liked,
-            heartSize: 128,
-            onLikeRequested: _toggleLike,
-            child: Center(
-              child: InteractiveViewer(
-                minScale: 1,
-                maxScale: 4,
-                child: Hero(
-                  tag: widget.heroTag,
-                  child: CachedNetworkImage(
-                    imageUrl: item.imageUrl,
-                    fit: BoxFit.contain,
-                    placeholder: (context, url) => Center(
-                      child: CircularProgressIndicator(
-                          color: e.coral, strokeWidth: 2),
-                    ),
-                    errorWidget: (context, url, error) => Icon(
-                      Icons.local_fire_department_outlined,
-                      color: e.textFaint,
-                      size: 48,
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(Gap.md,
+                  MediaQuery.of(context).padding.top + Gap.sm, Gap.lg, Gap.sm),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(Icons.arrow_back, color: g.ink),
+                    tooltip: 'Back',
+                  ),
+                  const Spacer(),
+                  Text(item.sourceName.toUpperCase(), style: Type.label(g.dim)),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: GestureDetector(
+              onDoubleTap: () {
+                if (!_liked) _toggleLike();
+                HapticFeedback.selectionClick();
+              },
+              child: Container(
+                color: g.surface,
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.62,
+                ),
+                child: InteractiveViewer(
+                  minScale: 1,
+                  maxScale: 4,
+                  child: Hero(
+                    tag: widget.heroTag,
+                    child: CachedNetworkImage(
+                      imageUrl: item.imageUrl,
+                      httpHeaders: kImageHeaders,
+                      fit: isPhoto ? BoxFit.cover : BoxFit.contain,
+                      placeholder: (context, _) => SizedBox(
+                        height: 300,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: g.ink),
+                        ),
+                      ),
+                      errorWidget: (context, _, _) => SizedBox(
+                        height: 300,
+                        child: Center(child: Text('—', style: Type.mono(g.faint))),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-
-          // Top scrim for the back button.
-          const _TopScrim(),
-
-          // Bottom info panel.
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _InfoPanel(
-              item: item,
-              title: title,
-              liked: _liked,
-              isSaved: isSaved,
-              onLike: _toggleLike,
-              onSave: () =>
-                  ref.read(savedPostsProvider.notifier).toggleSave(item),
+          SliverToBoxAdapter(child: Divider(color: g.hairline, height: 1)),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(Gap.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.title, style: Type.displayM(g.ink)),
+                  if (item.artist.isNotEmpty) ...[
+                    const SizedBox(height: Gap.sm),
+                    Text(item.artist, style: Type.body(g.dim)),
+                  ],
+                  if (metaLine.isNotEmpty) ...[
+                    const SizedBox(height: Gap.sm),
+                    Text(metaLine, style: Type.mono(g.faint)),
+                  ],
+                  const SizedBox(height: Gap.xl),
+                  Divider(color: g.hairline, height: 1),
+                  const SizedBox(height: Gap.md),
+                  Row(
+                    children: [
+                      _Action(
+                        icon: _liked ? Icons.favorite : Icons.favorite_border,
+                        label: _liked ? 'Liked' : 'Like',
+                        onTap: _toggleLike,
+                      ),
+                      const SizedBox(width: Gap.xxl),
+                      _Action(
+                        icon: isSaved ? Icons.bookmark : Icons.bookmark_border,
+                        label: isSaved ? 'Saved' : 'Save',
+                        onTap: () => ref
+                            .read(savedPostsProvider.notifier)
+                            .toggleSave(item),
+                      ),
+                      const Spacer(),
+                      _Action(
+                        icon: Icons.north_east,
+                        label: 'Source',
+                        onTap: () {
+                          if (item.sourceUrl.isNotEmpty) {
+                            launchUrl(Uri.parse(item.sourceUrl),
+                                mode: LaunchMode.externalApplication);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: MediaQuery.of(context).padding.bottom + Gap.lg),
+                ],
+              ),
             ),
-          ),
-
-          // Back button.
-          Positioned(
-            top: MediaQuery.of(context).padding.top + Insets.sm,
-            left: Insets.sm,
-            child: _CircleButton(
-              icon: Icons.arrow_back,
-              onTap: () => Navigator.of(context).pop(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TopScrim extends StatelessWidget {
-  const _TopScrim();
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        height: 140,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.black.withValues(alpha: 0.5), Colors.transparent],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoPanel extends StatelessWidget {
-  const _InfoPanel({
-    required this.item,
-    required this.title,
-    required this.liked,
-    required this.isSaved,
-    required this.onLike,
-    required this.onSave,
-  });
-
-  final FeedItem item;
-  final String title;
-  final bool liked;
-  final bool isSaved;
-  final VoidCallback onLike;
-  final VoidCallback onSave;
-
-  @override
-  Widget build(BuildContext context) {
-    final e = context.ember;
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        Insets.xxl,
-        Insets.xxxl,
-        Insets.xxl,
-        MediaQuery.of(context).padding.bottom + Insets.xl,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          colors: [
-            Colors.black.withValues(alpha: 0.9),
-            Colors.black.withValues(alpha: 0.55),
-            Colors.transparent,
-          ],
-          stops: const [0, 0.7, 1],
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (title.isNotEmpty)
-            Text(
-              title,
-              style: EmberText.serifQuote(const Color(0xFFF7EFE4)),
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
-            ),
-          const SizedBox(height: Insets.md),
-          Row(
-            children: [
-              Expanded(
-                child: MuseumLabel(
-                  item: item,
-                  color: const Color(0xFFCDBFAE),
-                ),
-              ),
-              if (item.createdUtc != null) ...[
-                const SizedBox(width: Insets.sm),
-                Text(
-                  timeago.format(item.createdUtc!),
-                  style: EmberText.museum(const Color(0xFF93877A))
-                      .copyWith(letterSpacing: 0.4),
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: Insets.lg),
-          Container(height: 1, color: Colors.white.withValues(alpha: 0.12)),
-          const SizedBox(height: Insets.md),
-          Row(
-            children: [
-              _Action(
-                icon: liked ? Icons.favorite : Icons.favorite_border,
-                label: 'Like',
-                color: liked ? e.likeColor : Colors.white,
-                onTap: onLike,
-              ),
-              const SizedBox(width: Insets.xxl),
-              _Action(
-                icon: isSaved ? Icons.bookmark : Icons.bookmark_border,
-                label: 'Save',
-                color: isSaved ? e.saveColor : Colors.white,
-                onTap: onSave,
-              ),
-              const Spacer(),
-              _Action(
-                icon: Icons.open_in_new,
-                label: 'Reddit',
-                color: Colors.white,
-                onTap: () {
-                  if (item.sourceUrl.isNotEmpty) {
-                    launchUrl(Uri.parse(item.sourceUrl),
-                        mode: LaunchMode.externalApplication);
-                  }
-                },
-              ),
-            ],
           ),
         ],
       ),
@@ -241,58 +162,24 @@ class _InfoPanel extends StatelessWidget {
 }
 
 class _Action extends StatelessWidget {
-  const _Action({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
+  const _Action(
+      {required this.icon, required this.label, required this.onTap});
   final IconData icon;
   final String label;
-  final Color color;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final g = context.c;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
         children: [
-          Icon(icon, color: color, size: 26),
-          const SizedBox(height: Insets.xs + 2),
-          Text(
-            label.toUpperCase(),
-            style: EmberText.museum(color.withValues(alpha: 0.9)),
-          ),
+          Icon(icon, size: 20, color: g.ink),
+          const SizedBox(width: Gap.sm),
+          Text(label.toUpperCase(), style: Type.label(g.ink)),
         ],
-      ),
-    );
-  }
-}
-
-class _CircleButton extends StatelessWidget {
-  const _CircleButton({required this.icon, required this.onTap});
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.black.withValues(alpha: 0.35),
-      shape: const CircleBorder(),
-      child: Tooltip(
-        message: 'Back',
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: Padding(
-            padding: const EdgeInsets.all(Insets.sm + 2),
-            child: Icon(icon, color: Colors.white, size: 22),
-          ),
-        ),
       ),
     );
   }

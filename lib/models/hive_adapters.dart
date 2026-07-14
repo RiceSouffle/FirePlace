@@ -1,22 +1,6 @@
 import 'package:hive_ce/hive.dart';
 import 'feed_item.dart';
-import 'content_source.dart';
 import 'screen_time_entry.dart';
-
-class ContentSourceAdapter extends TypeAdapter<ContentSource> {
-  @override
-  final int typeId = 1;
-
-  @override
-  ContentSource read(BinaryReader reader) {
-    return ContentSource.values[reader.readInt()];
-  }
-
-  @override
-  void write(BinaryWriter writer, ContentSource obj) {
-    writer.writeInt(obj.index);
-  }
-}
 
 class FeedItemAdapter extends TypeAdapter<FeedItem> {
   @override
@@ -33,28 +17,26 @@ class FeedItemAdapter extends TypeAdapter<FeedItem> {
       id: fields[0] as String,
       imageUrl: fields[1] as String,
       thumbnailUrl: fields[2] as String,
-      title: fields[3] as String?,
-      description: fields[4] as String?,
-      source: fields[5] as ContentSource,
-      authorName: fields[6] as String,
-      authorUrl: fields[7] as String?,
-      sourceUrl: fields[8] as String,
-      interestId: fields[9] as String,
-      width: fields[10] as int,
-      height: fields[11] as int,
-      avgColor: fields[12] as String?,
+      title: fields[3] as String,
+      artist: fields[4] as String? ?? '',
+      dateText: fields[5] as String?,
+      medium: fields[6] as String?,
+      category: fields[7] as String? ?? '',
+      sourceName: fields[8] as String? ?? '',
+      sourceUrl: fields[9] as String? ?? '',
+      interestId: fields[10] as String? ?? '',
+      width: fields[11] as int,
+      height: fields[12] as int,
       fetchedAt: fields[13] as DateTime,
       isLiked: fields[14] as bool? ?? false,
       isSaved: fields[15] as bool? ?? false,
-      subreddit: fields[16] as String? ?? '',
-      createdUtc: fields[17] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, FeedItem obj) {
     writer
-      ..writeByte(18)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -64,33 +46,29 @@ class FeedItemAdapter extends TypeAdapter<FeedItem> {
       ..writeByte(3)
       ..write(obj.title)
       ..writeByte(4)
-      ..write(obj.description)
+      ..write(obj.artist)
       ..writeByte(5)
-      ..write(obj.source)
+      ..write(obj.dateText)
       ..writeByte(6)
-      ..write(obj.authorName)
+      ..write(obj.medium)
       ..writeByte(7)
-      ..write(obj.authorUrl)
+      ..write(obj.category)
       ..writeByte(8)
-      ..write(obj.sourceUrl)
+      ..write(obj.sourceName)
       ..writeByte(9)
-      ..write(obj.interestId)
+      ..write(obj.sourceUrl)
       ..writeByte(10)
-      ..write(obj.width)
+      ..write(obj.interestId)
       ..writeByte(11)
-      ..write(obj.height)
+      ..write(obj.width)
       ..writeByte(12)
-      ..write(obj.avgColor)
+      ..write(obj.height)
       ..writeByte(13)
       ..write(obj.fetchedAt)
       ..writeByte(14)
       ..write(obj.isLiked)
       ..writeByte(15)
-      ..write(obj.isSaved)
-      ..writeByte(16)
-      ..write(obj.subreddit)
-      ..writeByte(17)
-      ..write(obj.createdUtc);
+      ..write(obj.isSaved);
   }
 }
 

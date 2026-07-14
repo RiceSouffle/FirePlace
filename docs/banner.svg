@@ -1,63 +1,31 @@
-<svg width="1200" height="360" viewBox="0 0 1200 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FirePlace — a calmer way to look at beautiful things. The Ember and Ash design system.">
-  <defs>
-    <linearGradient id="ember" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#F5A623"/>
-      <stop offset="0.5" stop-color="#F26A4B"/>
-      <stop offset="1" stop-color="#E14B6A"/>
-    </linearGradient>
-    <linearGradient id="cream" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#F7EFE4"/>
-      <stop offset="1" stop-color="#E4D6C4"/>
-    </linearGradient>
-    <radialGradient id="glowA" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#F5A623" stop-opacity="0.42"/>
-      <stop offset="1" stop-color="#F5A623" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="glowB" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#E14B6A" stop-opacity="0.34"/>
-      <stop offset="1" stop-color="#E14B6A" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-
-  <!-- ash ground -->
-  <rect width="1200" height="360" fill="#14100E"/>
-  <!-- warm glow pools -->
-  <ellipse cx="250" cy="140" rx="420" ry="300" fill="url(#glowA)"/>
-  <ellipse cx="720" cy="120" rx="360" ry="260" fill="url(#glowB)"/>
-  <rect width="1200" height="360" fill="#0C0A09" opacity="0.12"/>
-
-  <!-- flame mark -->
-  <g transform="translate(96,120)">
-    <path d="M32 4c3 9-4 13-4 20a6.5 6.5 0 0013 0c2 3 6.5 8 6.5 15A12 12 0 0132 55a13 13 0 01-13-13c0-11 8-13 13-38z" fill="url(#ember)"/>
-  </g>
+<svg width="1200" height="340" viewBox="0 0 1200 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FirePlace — a slow, monochrome gallery of beautiful things.">
+  <rect width="1200" height="340" fill="#0A0A0B"/>
+  <!-- hairline frame -->
+  <rect x="0.5" y="0.5" width="1199" height="339" fill="none" stroke="#2C2C31"/>
 
   <!-- wordmark -->
-  <text x="170" y="158" font-family="Fraunces, 'Hoefler Text', Georgia, 'Times New Roman', serif"
-        font-size="92" font-weight="600" letter-spacing="-2" fill="url(#cream)">FirePlace</text>
+  <text x="72" y="150" font-family="'Space Grotesk', 'Archivo', 'Helvetica Neue', Arial, sans-serif"
+        font-size="86" font-weight="700" letter-spacing="-2" fill="#FAFAF7">FIREPLACE</text>
 
-  <!-- tagline -->
-  <text x="172" y="212" font-family="Inter, -apple-system, 'Segoe UI', Roboto, sans-serif"
-        font-size="27" fill="#CDBFAE">A calmer way to look at beautiful things.</text>
+  <!-- tagline (mono voice) -->
+  <text x="74" y="196" font-family="'Space Mono', 'SFMono-Regular', Menlo, Consolas, monospace"
+        font-size="20" letter-spacing="1" fill="#A2A2A8">A calmer way to look at beautiful things.</text>
 
-  <!-- system label -->
-  <text x="172" y="262" font-family="Inter, -apple-system, 'Segoe UI', Roboto, sans-serif"
-        font-size="14" letter-spacing="3" fill="#93877A">EMBER &amp; ASH &#183; A MINDFUL IMAGE FEED FOR FLUTTER</text>
+  <!-- source line -->
+  <text x="74" y="250" font-family="'Space Mono', 'SFMono-Regular', Menlo, Consolas, monospace"
+        font-size="13" letter-spacing="3" fill="#66666C">THE MET &#183; WIKIMEDIA &#183; THE CAT API &#183; PICSUM</text>
 
-  <!-- palette dots -->
-  <g transform="translate(172,296)">
-    <circle cx="8" cy="8" r="8" fill="#F5A623"/>
-    <circle cx="34" cy="8" r="8" fill="#F26A4B"/>
-    <circle cx="60" cy="8" r="8" fill="#E14B6A"/>
-    <circle cx="86" cy="8" r="8" fill="#8FB08A"/>
-    <circle cx="112" cy="8" r="8" fill="#F7EFE4"/>
-    <circle cx="138" cy="8" r="8" fill="#272019" stroke="#4A3B2C"/>
+  <!-- gallery frames motif -->
+  <g stroke="#2C2C31" fill="none">
+    <rect x="854" y="96" width="86" height="112"/>
+    <rect x="952" y="96" width="86" height="112"/>
+    <rect x="1050" y="96" width="86" height="112"/>
   </g>
-
-  <!-- matted "print" motif on the right -->
-  <g transform="translate(940,86)">
-    <rect x="0" y="0" width="176" height="188" rx="18" fill="#0C0A09" stroke="#4A3B2C"/>
-    <rect x="12" y="12" width="152" height="120" rx="8" fill="url(#ember)" opacity="0.85"/>
-    <rect x="12" y="146" width="104" height="9" rx="4" fill="#F7EFE4" opacity="0.85"/>
-    <rect x="12" y="164" width="72" height="7" rx="3" fill="#93877A"/>
+  <g fill="#141416">
+    <rect x="862" y="120" width="70" height="64"/>
+    <rect x="960" y="112" width="70" height="80"/>
+    <rect x="1058" y="128" width="70" height="52"/>
   </g>
+  <!-- one inverted frame (active) -->
+  <rect x="952" y="96" width="86" height="112" fill="none" stroke="#FAFAF7"/>
 </svg>

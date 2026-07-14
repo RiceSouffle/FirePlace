@@ -4,7 +4,7 @@ import '../models/feed_item.dart';
 import '../models/screen_time_entry.dart';
 
 class StorageService {
-  static const String _savedPostsBox = 'saved_posts';
+  static const String _savedPostsBox = 'saved_v2';
   static const String _screenTimeBox = 'screen_time';
   static const String _interestsKey = 'selected_interests';
   static const String _onboardingCompleteKey = 'onboarding_complete';

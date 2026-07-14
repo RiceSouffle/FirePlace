@@ -1,46 +1,43 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fireplace/core/text_utils.dart';
+import 'package:fireplace/models/feed_item.dart';
+
+FeedItem _item({String artist = '', String? date, String source = 'The Met'}) {
+  return FeedItem(
+    id: 'x',
+    imageUrl: '',
+    thumbnailUrl: '',
+    title: 'Work',
+    artist: artist,
+    dateText: date,
+    sourceName: source,
+    sourceUrl: '',
+    width: 1000,
+    height: 800,
+    fetchedAt: DateTime(2024),
+  );
+}
 
 void main() {
-  group('cleanTitle', () {
-    test('strips bracketed resolutions', () {
-      expect(cleanTitle('Audi RS5 Wagon [1784x1004]'), 'Audi RS5 Wagon');
-      expect(cleanTitle('Lexus LFA Roadster (1080 x 1350)'),
-          'Lexus LFA Roadster');
+  group('FeedItem.byline (wall label)', () {
+    test('artist and date', () {
+      expect(_item(artist: 'Claude Monet', date: '1906').byline,
+          'Claude Monet  ·  1906');
     });
 
-    test('strips bare resolutions and OC/HD tags', () {
-      expect(cleanTitle('Sunset 1920x1080'), 'Sunset');
-      expect(cleanTitle('My shot [OC]'), 'My shot');
-      expect(cleanTitle('[HD] Mountain pass'), 'Mountain pass');
+    test('artist only', () {
+      expect(_item(artist: 'Hokusai').byline, 'Hokusai');
     });
 
-    test('strips pasted image domains', () {
-      expect(cleanTitle('Cool cat i.redd.it/abc123.jpg'), 'Cool cat');
-    });
-
-    test('collapses whitespace and trims separators', () {
-      expect(cleanTitle('  A   title —  '), 'A title');
-    });
-
-    test('leaves clean titles untouched and handles null', () {
-      expect(cleanTitle('Porsche 959 a class on its own'),
-          'Porsche 959 a class on its own');
-      expect(cleanTitle(null), '');
+    test('empty and uncredited when anonymous and undated', () {
+      final it = _item(source: 'Lorem Picsum');
+      expect(it.byline, '');
+      expect(it.hasCredit, false);
     });
   });
 
-  group('museumLabel', () {
-    test('formats author and subreddit', () {
-      expect(
-        museumLabel(author: 'u/quan', subreddit: 'carporn'),
-        'PHOTOGRAPH  ·  u/quan  ·  r/carporn',
-      );
-    });
-
-    test('omits an empty subreddit', () {
-      expect(museumLabel(author: 'u/quan', subreddit: ''),
-          'PHOTOGRAPH  ·  u/quan');
+  group('FeedItem.aspectRatio', () {
+    test('computes from dimensions', () {
+      expect(_item().aspectRatio, closeTo(1.25, 0.001));
     });
   });
 }

@@ -1,26 +1,35 @@
-import 'content_source.dart';
-
+/// A single work in the feed — a museum artwork or a photograph. The same shape
+/// carries both; [sourceName] and [category] say which.
 class FeedItem {
   final String id;
   final String imageUrl;
   final String thumbnailUrl;
-  final String? title;
-  final String? description;
-  final ContentSource source;
-  final String authorName;
-  final String? authorUrl;
+  final String title;
+
+  /// Artist or photographer. May be empty (e.g. "Unknown", anonymous photos).
+  final String artist;
+
+  /// Display date, e.g. "1936" or "c. 1560". Free text from the source.
+  final String? dateText;
+
+  /// Medium / description, e.g. "Oil on canvas".
+  final String? medium;
+
+  /// The category this came in under, e.g. "Painting", "Photograph".
+  final String category;
+
+  /// Human collection name, e.g. "The Met" or "Lorem Picsum".
+  final String sourceName;
+
+  /// A link to the work's page on the source.
   final String sourceUrl;
+
+  /// The id of the interest/category used to fetch it.
   final String interestId;
 
-  /// The bare subreddit name (e.g. `carporn`) for the museum-label attribution.
-  final String subreddit;
   final int width;
   final int height;
-  final String? avgColor;
   final DateTime fetchedAt;
-
-  /// When the post was created on Reddit, for a genuine "time ago" in Detail.
-  final DateTime? createdUtc;
   bool isLiked;
   bool isSaved;
 
@@ -28,22 +37,32 @@ class FeedItem {
     required this.id,
     required this.imageUrl,
     required this.thumbnailUrl,
-    this.title,
-    this.description,
-    required this.source,
-    required this.authorName,
-    this.authorUrl,
+    required this.title,
+    this.artist = '',
+    this.dateText,
+    this.medium,
+    this.category = '',
+    required this.sourceName,
     required this.sourceUrl,
-    required this.interestId,
-    this.subreddit = '',
+    this.interestId = '',
     required this.width,
     required this.height,
-    this.avgColor,
     required this.fetchedAt,
-    this.createdUtc,
     this.isLiked = false,
     this.isSaved = false,
   });
 
   double get aspectRatio => width > 0 && height > 0 ? width / height : 1.0;
+
+  /// Whether there's an artist/date to credit (vs. source-only content).
+  bool get hasCredit =>
+      artist.isNotEmpty || (dateText != null && dateText!.isNotEmpty);
+
+  /// The wall-label byline, e.g. "Claude Monet · 1906". Empty when uncredited.
+  String get byline {
+    final parts = <String>[];
+    if (artist.isNotEmpty) parts.add(artist);
+    if (dateText != null && dateText!.isNotEmpty) parts.add(dateText!);
+    return parts.join('  ·  ');
+  }
 }
