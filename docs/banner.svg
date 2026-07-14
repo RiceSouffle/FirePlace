@@ -1,0 +1,63 @@
+<svg width="1200" height="360" viewBox="0 0 1200 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FirePlace — a calmer way to look at beautiful things. The Ember and Ash design system.">
+  <defs>
+    <linearGradient id="ember" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F5A623"/>
+      <stop offset="0.5" stop-color="#F26A4B"/>
+      <stop offset="1" stop-color="#E14B6A"/>
+    </linearGradient>
+    <linearGradient id="cream" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F7EFE4"/>
+      <stop offset="1" stop-color="#E4D6C4"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#F5A623" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#F5A623" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#E14B6A" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#E14B6A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ash ground -->
+  <rect width="1200" height="360" fill="#14100E"/>
+  <!-- warm glow pools -->
+  <ellipse cx="250" cy="140" rx="420" ry="300" fill="url(#glowA)"/>
+  <ellipse cx="720" cy="120" rx="360" ry="260" fill="url(#glowB)"/>
+  <rect width="1200" height="360" fill="#0C0A09" opacity="0.12"/>
+
+  <!-- flame mark -->
+  <g transform="translate(96,120)">
+    <path d="M32 4c3 9-4 13-4 20a6.5 6.5 0 0013 0c2 3 6.5 8 6.5 15A12 12 0 0132 55a13 13 0 01-13-13c0-11 8-13 13-38z" fill="url(#ember)"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="170" y="158" font-family="Fraunces, 'Hoefler Text', Georgia, 'Times New Roman', serif"
+        font-size="92" font-weight="600" letter-spacing="-2" fill="url(#cream)">FirePlace</text>
+
+  <!-- tagline -->
+  <text x="172" y="212" font-family="Inter, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        font-size="27" fill="#CDBFAE">A calmer way to look at beautiful things.</text>
+
+  <!-- system label -->
+  <text x="172" y="262" font-family="Inter, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        font-size="14" letter-spacing="3" fill="#93877A">EMBER &amp; ASH &#183; A MINDFUL IMAGE FEED FOR FLUTTER</text>
+
+  <!-- palette dots -->
+  <g transform="translate(172,296)">
+    <circle cx="8" cy="8" r="8" fill="#F5A623"/>
+    <circle cx="34" cy="8" r="8" fill="#F26A4B"/>
+    <circle cx="60" cy="8" r="8" fill="#E14B6A"/>
+    <circle cx="86" cy="8" r="8" fill="#8FB08A"/>
+    <circle cx="112" cy="8" r="8" fill="#F7EFE4"/>
+    <circle cx="138" cy="8" r="8" fill="#272019" stroke="#4A3B2C"/>
+  </g>
+
+  <!-- matted "print" motif on the right -->
+  <g transform="translate(940,86)">
+    <rect x="0" y="0" width="176" height="188" rx="18" fill="#0C0A09" stroke="#4A3B2C"/>
+    <rect x="12" y="12" width="152" height="120" rx="8" fill="url(#ember)" opacity="0.85"/>
+    <rect x="12" y="146" width="104" height="9" rx="4" fill="#F7EFE4" opacity="0.85"/>
+    <rect x="12" y="164" width="72" height="7" rx="3" fill="#93877A"/>
+  </g>
+</svg>

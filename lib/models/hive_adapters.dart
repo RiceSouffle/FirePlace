@@ -46,13 +46,15 @@ class FeedItemAdapter extends TypeAdapter<FeedItem> {
       fetchedAt: fields[13] as DateTime,
       isLiked: fields[14] as bool? ?? false,
       isSaved: fields[15] as bool? ?? false,
+      subreddit: fields[16] as String? ?? '',
+      createdUtc: fields[17] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, FeedItem obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -84,7 +86,11 @@ class FeedItemAdapter extends TypeAdapter<FeedItem> {
       ..writeByte(14)
       ..write(obj.isLiked)
       ..writeByte(15)
-      ..write(obj.isSaved);
+      ..write(obj.isSaved)
+      ..writeByte(16)
+      ..write(obj.subreddit)
+      ..writeByte(17)
+      ..write(obj.createdUtc);
   }
 }
 

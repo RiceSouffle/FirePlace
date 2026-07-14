@@ -1,5 +1,10 @@
 import 'package:flutter/widgets.dart';
 
+/// Whether the OS has asked for reduced motion. Entrance/idle animations are
+/// gated on this so vestibular-sensitive users get a still interface.
+bool reduceMotion(BuildContext context) =>
+    MediaQuery.of(context).disableAnimations;
+
 /// Ember & Ash design tokens.
 ///
 /// A single source of truth for spacing, corner radius, and motion so every

@@ -1,43 +1,60 @@
 import 'package:flutter/material.dart';
+import '../design/ember_theme.dart';
+import '../design/ember_tokens.dart';
+import 'hearth.dart';
 
+/// A warm empty/idle state — a soft living-hearth glow behind a serif line,
+/// so even "nothing here" feels tended rather than broken.
 class EmptyState extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
   const EmptyState({
     super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.action,
   });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final e = context.ember;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(48),
+        padding: const EdgeInsets.all(Insets.huge),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 72, color: Colors.grey.shade300),
-            const SizedBox(height: 16),
+            SizedBox(
+              width: 120,
+              height: 120,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  const HearthGlow(intensity: 0.9, focal: Alignment.center),
+                  Icon(icon, size: 44, color: e.textStrong),
+                ],
+              ),
+            ),
+            const SizedBox(height: Insets.lg),
             Text(
               title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: EmberText.displayM(e.textStrong),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Insets.sm),
             Text(
               subtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: Colors.grey.shade500,
-              ),
+              style: EmberText.body(e.textMuted),
               textAlign: TextAlign.center,
             ),
+            if (action != null) ...[
+              const SizedBox(height: Insets.xxl),
+              action!,
+            ],
           ],
         ),
       ),

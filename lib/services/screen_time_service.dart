@@ -16,8 +16,13 @@ class ScreenTimeService with WidgetsBindingObserver {
   String get _todayKey => DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   int get todayTotalSeconds {
-    final entry = _storage.getScreenTimeEntry(_todayKey);
-    return (entry?.totalSeconds ?? 0) + _stopwatch.elapsed.inSeconds;
+    // While tracking, the live total is the base captured at start plus the
+    // running stopwatch. Reading the *stored* entry (which _persist already
+    // wrote as base + elapsed) and re-adding elapsed would double-count.
+    if (_stopwatch.isRunning || _stopwatch.elapsed.inSeconds > 0) {
+      return _baseSeconds + _stopwatch.elapsed.inSeconds;
+    }
+    return _storage.getScreenTimeEntry(_todayKey)?.totalSeconds ?? 0;
   }
 
   void startTracking() {

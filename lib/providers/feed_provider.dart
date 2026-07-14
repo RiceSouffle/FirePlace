@@ -49,7 +49,11 @@ class FeedNotifier extends StateNotifier<AsyncValue<List<FeedItem>>> {
         page: _currentPage,
       );
       final current = state.valueOrNull ?? [];
-      state = AsyncValue.data([...current, ...moreItems]);
+      // De-dupe across batches: hot.json can surface the same posts, and two
+      // cards sharing an id would collide on their 'feed_<id>' Hero tag.
+      final ids = current.map((e) => e.id).toSet();
+      final fresh = moreItems.where((m) => ids.add(m.id)).toList();
+      state = AsyncValue.data([...current, ...fresh]);
     } catch (_) {
       _currentPage--;
     }

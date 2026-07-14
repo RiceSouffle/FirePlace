@@ -24,3 +24,23 @@ final screenTimeHistoryProvider = Provider<List<ScreenTimeEntry>>((ref) {
   final storage = ref.read(storageServiceProvider);
   return storage.getScreenTimeHistory(7);
 });
+
+/// The daily browsing budget in minutes. Reframes the old "remind after N min"
+/// setting as a gentle goal the [BudgetRing] cools toward. Kept in sync with the
+/// stored threshold so the wind-down trigger honours the same number.
+final dailyBudgetProvider =
+    StateNotifierProvider<DailyBudgetNotifier, int>((ref) {
+  final storage = ref.read(storageServiceProvider);
+  return DailyBudgetNotifier(storage);
+});
+
+class DailyBudgetNotifier extends StateNotifier<int> {
+  DailyBudgetNotifier(this._storage) : super(_storage.reminderThresholdMinutes);
+
+  final dynamic _storage;
+
+  Future<void> set(int minutes) async {
+    state = minutes;
+    await _storage.setReminderThresholdMinutes(minutes);
+  }
+}

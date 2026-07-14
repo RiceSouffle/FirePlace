@@ -11,10 +11,16 @@ class FeedItem {
   final String? authorUrl;
   final String sourceUrl;
   final String interestId;
+
+  /// The bare subreddit name (e.g. `carporn`) for the museum-label attribution.
+  final String subreddit;
   final int width;
   final int height;
   final String? avgColor;
   final DateTime fetchedAt;
+
+  /// When the post was created on Reddit, for a genuine "time ago" in Detail.
+  final DateTime? createdUtc;
   bool isLiked;
   bool isSaved;
 
@@ -29,10 +35,12 @@ class FeedItem {
     this.authorUrl,
     required this.sourceUrl,
     required this.interestId,
+    this.subreddit = '',
     required this.width,
     required this.height,
     this.avgColor,
     required this.fetchedAt,
+    this.createdUtc,
     this.isLiked = false,
     this.isSaved = false,
   });

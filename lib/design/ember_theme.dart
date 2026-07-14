@@ -64,6 +64,11 @@ class EmberColors extends ThemeExtension<EmberColors> {
 
   bool get isDark => brightness == Brightness.dark;
 
+  /// Foreground for anything painted on the ember gradient. A deep warm ink
+  /// reads with strong contrast on the bright amber→rose stops in both themes
+  /// (white fails WCAG on the amber end), and suits the "lit coal" metaphor.
+  Color get onEmber => const Color(0xFF20130A);
+
   /// The core ember gradient — buttons, active chips, the like heart, the ring.
   LinearGradient get emberCore => LinearGradient(
         begin: Alignment.topLeft,
@@ -144,7 +149,7 @@ class EmberColors extends ThemeExtension<EmberColors> {
     textStrong: Color(0xFF241B14),
     textMuted: Color(0xFF5C4E40),
     textFaint: Color(0xFF8B7B69),
-    sage: Color(0xFF6E8B75),
+    sage: Color(0xFF4F7057),
     likeColor: Color(0xFFC63B57),
     saveColor: Color(0xFFD9542F),
   );

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../core/text_utils.dart';
 import '../models/feed_item.dart';
 import '../models/content_source.dart';
 
@@ -41,15 +42,21 @@ class RedditService {
               id: 'reddit_${post['id']}',
               imageUrl: _extractImageUrl(post),
               thumbnailUrl: _decodeThumbnail(post['thumbnail']),
-              title: post['title'] ?? '',
+              title: cleanTitle(post['title'] as String?),
               source: ContentSource.reddit,
               authorName: 'u/${post['author']}',
               authorUrl: 'https://reddit.com/u/${post['author']}',
               sourceUrl: 'https://reddit.com${post['permalink']}',
               interestId: interestId,
+              subreddit: (post['subreddit'] as String?) ?? subreddit,
               width: post['preview']?['images']?[0]?['source']?['width'] ?? 800,
               height: post['preview']?['images']?[0]?['source']?['height'] ?? 800,
               fetchedAt: DateTime.now(),
+              createdUtc: post['created_utc'] != null
+                  ? DateTime.fromMillisecondsSinceEpoch(
+                      ((post['created_utc'] as num).toInt()) * 1000,
+                      isUtc: true)
+                  : null,
             ))
         .toList();
   }

@@ -1,323 +1,298 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
+import '../../design/ember_theme.dart';
+import '../../design/ember_tokens.dart';
 import '../../models/feed_item.dart';
 import '../../providers/saved_posts_provider.dart';
+import '../../widgets/ember_burst.dart';
+import '../../widgets/museum_label.dart';
 
+/// The print steps off the wall: a hero-lifted, pinch-zoomable full-bleed image
+/// with the title *promoted* from utilitarian Inter into a Fraunces pull-quote —
+/// a small luxury that rewards tapping in.
 class PostDetailScreen extends ConsumerStatefulWidget {
-  final FeedItem item;
-  final VoidCallback? onLikeToggle;
-
   const PostDetailScreen({
     super.key,
     required this.item,
+    required this.heroTag,
     this.onLikeToggle,
   });
+
+  final FeedItem item;
+  final String heroTag;
+  final VoidCallback? onLikeToggle;
 
   @override
   ConsumerState<PostDetailScreen> createState() => _PostDetailScreenState();
 }
 
-class _PostDetailScreenState extends ConsumerState<PostDetailScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _heartController;
-  late Animation<double> _heartScale;
-  bool _showHeart = false;
+class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
+  late bool _liked = widget.item.isLiked;
 
-  @override
-  void initState() {
-    super.initState();
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-      ),
-    );
-    _heartController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _heartScale = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.4)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 40,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.4, end: 1.0)
-            .chain(CurveTween(curve: Curves.elasticIn)),
-        weight: 30,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 1.0),
-        weight: 10,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 20,
-      ),
-    ]).animate(_heartController);
-
-    _heartController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        setState(() => _showHeart = false);
-        _heartController.reset();
-      }
-    });
+  void _toggleLike() {
+    setState(() => _liked = !_liked);
+    widget.item.isLiked = _liked;
+    widget.onLikeToggle?.call();
   }
-
-  @override
-  void dispose() {
-    _heartController.dispose();
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-    super.dispose();
-  }
-
-  void _onDoubleTap() {
-    if (!widget.item.isLiked) {
-      widget.onLikeToggle?.call();
-      setState(() {});
-    }
-    setState(() => _showHeart = true);
-    _heartController.forward(from: 0.0);
-  }
-
-  String _sourceName() => 'Reddit';
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final e = context.ember;
     final item = widget.item;
-    final isSaved = ref.watch(savedPostsProvider).any((p) => p.id == item.id);
+    final isSaved =
+        ref.watch(savedPostsProvider).any((p) => p.id == item.id);
+    final title = item.title ?? '';
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: GestureDetector(
-        onDoubleTap: _onDoubleTap,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Full-screen image with interactive viewer for pinch-to-zoom
-            Center(
+      backgroundColor: e.inkFrame,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          DoubleTapEmber(
+            liked: _liked,
+            heartSize: 128,
+            onLikeRequested: _toggleLike,
+            child: Center(
               child: InteractiveViewer(
-                minScale: 0.5,
-                maxScale: 4.0,
-                child: CachedNetworkImage(
-                  imageUrl: item.imageUrl,
-                  fit: BoxFit.contain,
-                  placeholder: (context, url) => const Center(
-                    child: CircularProgressIndicator(color: Colors.white54),
-                  ),
-                  errorWidget: (context, url, error) => const Center(
-                    child: Icon(
-                      Icons.broken_image_outlined,
-                      size: 64,
-                      color: Colors.white38,
+                minScale: 1,
+                maxScale: 4,
+                child: Hero(
+                  tag: widget.heroTag,
+                  child: CachedNetworkImage(
+                    imageUrl: item.imageUrl,
+                    fit: BoxFit.contain,
+                    placeholder: (context, url) => Center(
+                      child: CircularProgressIndicator(
+                          color: e.coral, strokeWidth: 2),
+                    ),
+                    errorWidget: (context, url, error) => Icon(
+                      Icons.local_fire_department_outlined,
+                      color: e.textFaint,
+                      size: 48,
                     ),
                   ),
                 ),
               ),
             ),
+          ),
 
-            // Top gradient for back button visibility
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 120,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.6),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
+          // Top scrim for the back button.
+          const _TopScrim(),
+
+          // Bottom info panel.
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _InfoPanel(
+              item: item,
+              title: title,
+              liked: _liked,
+              isSaved: isSaved,
+              onLike: _toggleLike,
+              onSave: () =>
+                  ref.read(savedPostsProvider.notifier).toggleSave(item),
             ),
+          ),
 
-            // Bottom info panel
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  24,
-                  16,
-                  MediaQuery.of(context).padding.bottom + 16,
-                ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.85),
-                      Colors.black.withValues(alpha: 0.4),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.7, 1.0],
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (item.title != null && item.title!.isNotEmpty)
-                      Text(
-                        item.title!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () {
-                        final url = item.authorUrl ?? item.sourceUrl;
-                        if (url.isNotEmpty) {
-                          launchUrl(Uri.parse(url),
-                              mode: LaunchMode.externalApplication);
-                        }
-                      },
-                      child: Text(
-                        '${item.authorName} on ${_sourceName()}',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Action buttons row
-                    Row(
-                      children: [
-                        _ActionButton(
-                          icon: item.isLiked
-                              ? Icons.favorite
-                              : Icons.favorite_outline,
-                          label: 'Like',
-                          color: item.isLiked ? Colors.red : Colors.white,
-                          onTap: () {
-                            widget.onLikeToggle?.call();
-                            setState(() {});
-                          },
-                        ),
-                        const SizedBox(width: 24),
-                        _ActionButton(
-                          icon: isSaved
-                              ? Icons.bookmark
-                              : Icons.bookmark_outline,
-                          label: 'Save',
-                          color: isSaved
-                              ? theme.colorScheme.primary
-                              : Colors.white,
-                          onTap: () {
-                            ref
-                                .read(savedPostsProvider.notifier)
-                                .toggleSave(item);
-                          },
-                        ),
-                        const SizedBox(width: 24),
-                        _ActionButton(
-                          icon: Icons.open_in_new,
-                          label: 'Source',
-                          color: Colors.white,
-                          onTap: () {
-                            if (item.sourceUrl.isNotEmpty) {
-                              launchUrl(Uri.parse(item.sourceUrl),
-                                  mode: LaunchMode.externalApplication);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+          // Back button.
+          Positioned(
+            top: MediaQuery.of(context).padding.top + Insets.sm,
+            left: Insets.sm,
+            child: _CircleButton(
+              icon: Icons.arrow_back,
+              onTap: () => Navigator.of(context).pop(),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-            // Back button
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 8,
-              left: 8,
-              child: IconButton(
-                onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.black26,
-                ),
-              ),
-            ),
+class _TopScrim extends StatelessWidget {
+  const _TopScrim();
 
-            // Double-tap heart animation
-            if (_showHeart)
-              Center(
-                child: AnimatedBuilder(
-                  animation: _heartScale,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _heartScale.value,
-                      child: child,
-                    );
-                  },
-                  child: const Icon(
-                    Icons.favorite,
-                    color: Colors.white,
-                    size: 120,
-                    shadows: [
-                      Shadow(blurRadius: 30, color: Colors.black38),
-                    ],
-                  ),
-                ),
-              ),
-          ],
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        height: 140,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.black.withValues(alpha: 0.5), Colors.transparent],
+          ),
         ),
       ),
     );
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
+class _InfoPanel extends StatelessWidget {
+  const _InfoPanel({
+    required this.item,
+    required this.title,
+    required this.liked,
+    required this.isSaved,
+    required this.onLike,
+    required this.onSave,
+  });
 
-  const _ActionButton({
+  final FeedItem item;
+  final String title;
+  final bool liked;
+  final bool isSaved;
+  final VoidCallback onLike;
+  final VoidCallback onSave;
+
+  @override
+  Widget build(BuildContext context) {
+    final e = context.ember;
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        Insets.xxl,
+        Insets.xxxl,
+        Insets.xxl,
+        MediaQuery.of(context).padding.bottom + Insets.xl,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [
+            Colors.black.withValues(alpha: 0.9),
+            Colors.black.withValues(alpha: 0.55),
+            Colors.transparent,
+          ],
+          stops: const [0, 0.7, 1],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (title.isNotEmpty)
+            Text(
+              title,
+              style: EmberText.serifQuote(const Color(0xFFF7EFE4)),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
+          const SizedBox(height: Insets.md),
+          Row(
+            children: [
+              Expanded(
+                child: MuseumLabel(
+                  item: item,
+                  color: const Color(0xFFCDBFAE),
+                ),
+              ),
+              if (item.createdUtc != null) ...[
+                const SizedBox(width: Insets.sm),
+                Text(
+                  timeago.format(item.createdUtc!),
+                  style: EmberText.museum(const Color(0xFF93877A))
+                      .copyWith(letterSpacing: 0.4),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: Insets.lg),
+          Container(height: 1, color: Colors.white.withValues(alpha: 0.12)),
+          const SizedBox(height: Insets.md),
+          Row(
+            children: [
+              _Action(
+                icon: liked ? Icons.favorite : Icons.favorite_border,
+                label: 'Like',
+                color: liked ? e.likeColor : Colors.white,
+                onTap: onLike,
+              ),
+              const SizedBox(width: Insets.xxl),
+              _Action(
+                icon: isSaved ? Icons.bookmark : Icons.bookmark_border,
+                label: 'Save',
+                color: isSaved ? e.saveColor : Colors.white,
+                onTap: onSave,
+              ),
+              const Spacer(),
+              _Action(
+                icon: Icons.open_in_new,
+                label: 'Reddit',
+                color: Colors.white,
+                onTap: () {
+                  if (item.sourceUrl.isNotEmpty) {
+                    launchUrl(Uri.parse(item.sourceUrl),
+                        mode: LaunchMode.externalApplication);
+                  }
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Action extends StatelessWidget {
+  const _Action({
     required this.icon,
     required this.label,
     required this.color,
     required this.onTap,
   });
 
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: color, size: 28),
-          const SizedBox(height: 4),
+          Icon(icon, color: color, size: 26),
+          const SizedBox(height: Insets.xs + 2),
           Text(
-            label,
-            style: TextStyle(
-              color: color.withValues(alpha: 0.9),
-              fontSize: 12,
-            ),
+            label.toUpperCase(),
+            style: EmberText.museum(color.withValues(alpha: 0.9)),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CircleButton extends StatelessWidget {
+  const _CircleButton({required this.icon, required this.onTap});
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.black.withValues(alpha: 0.35),
+      shape: const CircleBorder(),
+      child: Tooltip(
+        message: 'Back',
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: Padding(
+            padding: const EdgeInsets.all(Insets.sm + 2),
+            child: Icon(icon, color: Colors.white, size: 22),
+          ),
+        ),
       ),
     );
   }
