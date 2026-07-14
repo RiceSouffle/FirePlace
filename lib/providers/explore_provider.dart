@@ -29,9 +29,10 @@ class ExploreNotifier extends StateNotifier<AsyncValue<List<FeedItem>>> {
               .toList()
           : AppConstants.allInterests;
       final items = await _gallery.fetchFeed(interests: interests, perPage: 18);
+      if (!mounted) return; // category changed mid-fetch → notifier disposed
       state = AsyncValue.data(items);
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      if (mounted) state = AsyncValue.error(e, st);
     }
   }
 

@@ -41,32 +41,38 @@ class WikimediaService {
       final now = DateTime.now();
       final items = <FeedItem>[];
       for (final entry in pages.values) {
-        final page = entry as Map<String, dynamic>;
-        final iiList = page['imageinfo'] as List?;
-        if (iiList == null || iiList.isEmpty) continue;
-        final ii = iiList.first as Map<String, dynamic>;
-        final mime = ii['mime'] as String? ?? '';
-        if (!mime.startsWith('image/') || mime.contains('svg')) continue;
-        final thumb = ii['thumburl'] as String?;
-        if (thumb == null || thumb.isEmpty) continue;
+        // Isolate each page so one malformed record can't discard the batch.
+        try {
+          final page = entry as Map<String, dynamic>;
+          final iiList = page['imageinfo'] as List?;
+          if (iiList == null || iiList.isEmpty) continue;
+          final ii = iiList.first as Map<String, dynamic>;
+          final mime = ii['mime'] as String? ?? '';
+          if (!mime.startsWith('image/') || mime.contains('svg')) continue;
+          final thumb = ii['thumburl'] as String?;
+          if (thumb == null || thumb.isEmpty) continue;
 
-        final em = ii['extmetadata'] as Map<String, dynamic>? ?? {};
-        items.add(FeedItem(
-          id: 'wiki_${page['pageid']}',
-          imageUrl: thumb,
-          thumbnailUrl: thumb,
-          title: _cleanTitle(page['title'] as String? ?? ''),
-          artist: _stripHtml(em['Artist']?['value'] as String?),
-          dateText: _year(em['DateTimeOriginal']?['value'] as String?),
-          medium: category,
-          category: category,
-          sourceName: 'Wikimedia Commons',
-          sourceUrl: 'https://commons.wikimedia.org/?curid=${page['pageid']}',
-          interestId: interestId,
-          width: (ii['thumbwidth'] as num?)?.toInt() ?? 900,
-          height: (ii['thumbheight'] as num?)?.toInt() ?? 900,
-          fetchedAt: now,
-        ));
+          final em = ii['extmetadata'] as Map<String, dynamic>? ?? {};
+          items.add(FeedItem(
+            id: 'wiki_${page['pageid']}',
+            imageUrl: thumb,
+            thumbnailUrl: thumb,
+            title: _cleanTitle(page['title'] as String? ?? ''),
+            artist: _stripHtml(_asString(em['Artist'])),
+            dateText: _year(_asString(em['DateTimeOriginal'])),
+            medium: category,
+            category: category,
+            sourceName: 'Wikimedia Commons',
+            sourceUrl:
+                'https://commons.wikimedia.org/?curid=${page['pageid']}',
+            interestId: interestId,
+            width: (ii['thumbwidth'] as num?)?.toInt() ?? 900,
+            height: (ii['thumbheight'] as num?)?.toInt() ?? 900,
+            fetchedAt: now,
+          ));
+        } catch (_) {
+          continue;
+        }
       }
       return items;
     } catch (_) {
@@ -89,6 +95,14 @@ class WikimediaService {
       return '';
     }
     return t.length > 80 ? '${t.substring(0, 77)}…' : t;
+  }
+
+  /// Safely reads an extmetadata `{value: ...}` node that may be a non-Map or
+  /// hold a non-String value.
+  static String? _asString(dynamic node) {
+    if (node is Map && node['value'] is String) return node['value'] as String;
+    if (node is String) return node;
+    return null;
   }
 
   static String _stripHtml(String? html) {

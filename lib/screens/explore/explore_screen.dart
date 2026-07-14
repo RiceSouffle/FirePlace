@@ -89,6 +89,7 @@ class ExploreScreen extends ConsumerWidget {
                     backgroundColor: g.surface,
                     child: GridView.builder(
                       key: ValueKey(selected),
+                      physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.fromLTRB(
                           Gap.lg, 0, Gap.lg, Gap.giant),
                       gridDelegate:

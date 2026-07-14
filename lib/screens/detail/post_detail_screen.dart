@@ -29,9 +29,12 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   late bool _liked = widget.item.isLiked;
 
   void _toggleLike() {
-    setState(() => _liked = !_liked);
-    widget.item.isLiked = _liked;
+    // The owning surface's callback is the single place that flips
+    // item.isLiked (feed/explore/saved all do `item.isLiked = !item.isLiked`);
+    // we just re-sync the local heart from it. Writing here too would double-
+    // toggle and cancel out.
     widget.onLikeToggle?.call();
+    setState(() => _liked = widget.item.isLiked);
   }
 
   @override

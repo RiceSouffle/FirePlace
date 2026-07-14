@@ -14,11 +14,14 @@ class CatService {
     try {
       final res = await _client.get(uri).timeout(const Duration(seconds: 12));
       if (res.statusCode != 200) return const [];
-      final list = jsonDecode(res.body) as List;
+      // Throttled/errored responses can be a JSON object, not an array.
+      final decoded = jsonDecode(res.body);
+      if (decoded is! List) return const [];
       final now = DateTime.now();
       final items = <FeedItem>[];
-      for (final raw in list) {
-        final c = raw as Map<String, dynamic>;
+      for (final raw in decoded) {
+        if (raw is! Map<String, dynamic>) continue;
+        final c = raw;
         final url = c['url'] as String? ?? '';
         if (url.isEmpty || url.toLowerCase().endsWith('.gif')) continue;
         items.add(FeedItem(

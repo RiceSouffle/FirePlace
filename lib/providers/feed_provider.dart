@@ -28,9 +28,10 @@ class FeedNotifier extends StateNotifier<AsyncValue<List<FeedItem>>> {
   Future<void> _loadInitial() async {
     try {
       final items = await _gallery.fetchFeed(interests: _interests, page: 1);
+      if (!mounted) return; // interests changed mid-fetch → notifier disposed
       state = AsyncValue.data(items);
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      if (mounted) state = AsyncValue.error(e, st);
     }
   }
 
@@ -39,6 +40,7 @@ class FeedNotifier extends StateNotifier<AsyncValue<List<FeedItem>>> {
     try {
       final more =
           await _gallery.fetchFeed(interests: _interests, page: _currentPage);
+      if (!mounted) return;
       final current = state.valueOrNull ?? [];
       final ids = current.map((e) => e.id).toSet();
       final fresh = more.where((m) => ids.add(m.id)).toList();
